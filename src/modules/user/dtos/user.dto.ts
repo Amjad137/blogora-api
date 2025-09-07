@@ -4,21 +4,14 @@ import {
     IsOptional,
     IsString,
     MinLength,
+    IsEnum,
+    IsPhoneNumber,
 } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { PartialType, OmitType } from '@nestjs/mapped-types';
+import { ENUM_USER_ROLE } from '../repository/entities/user.entity';
 
 export class CreateUserDto {
-    @ApiProperty({ example: 'john@example.com' })
-    @IsEmail()
-    @IsNotEmpty()
-    email: string;
-
-    @ApiProperty({ example: 'password123', minLength: 6 })
-    @IsString()
-    @IsNotEmpty()
-    @MinLength(6)
-    password: string;
-
     @ApiProperty({ example: 'John' })
     @IsString()
     @IsNotEmpty()
@@ -29,47 +22,95 @@ export class CreateUserDto {
     @IsNotEmpty()
     lastName: string;
 
-    @ApiProperty({ example: 'Software developer and blogger', required: false })
+    @ApiProperty({ example: 'john@example.com' })
+    @IsEmail()
+    @IsNotEmpty()
+    email: string;
+
+    @ApiProperty({ example: '+1234567890' })
+    @IsPhoneNumber()
+    @IsNotEmpty()
+    phoneNumber: string;
+
+    @ApiProperty({ example: '123 Main St, City, Country' })
     @IsString()
+    @IsNotEmpty()
+    address: string;
+
+    @ApiProperty({ example: 'Test@123', minLength: 6 })
+    @IsString()
+    @IsNotEmpty()
+    @MinLength(6)
+    password: string;
+
+    @ApiPropertyOptional({
+        example: 'user',
+        enum: ENUM_USER_ROLE,
+        description: 'User role (admin can only be set by existing admin)',
+        default: 'user',
+    })
+    @IsEnum(ENUM_USER_ROLE)
     @IsOptional()
-    bio?: string;
+    role?: ENUM_USER_ROLE;
 }
 
-export class UpdateUserDto {
-    @ApiProperty({ example: 'John', required: false })
-    @IsString()
+export class UpdateUserDto extends PartialType(
+    OmitType(CreateUserDto, ['password', 'role'] as const),
+) {
+    @ApiPropertyOptional({ example: 'abc123def456' })
     @IsOptional()
-    firstName?: string;
+    @IsString()
+    passwordResetToken?: string;
 
-    @ApiProperty({ example: 'Doe', required: false })
-    @IsString()
+    @ApiPropertyOptional({ example: '2024-01-15T10:30:00.000Z' })
     @IsOptional()
-    lastName?: string;
+    passwordResetExpires?: Date;
 
-    @ApiProperty({ example: 'Software developer and blogger', required: false })
-    @IsString()
+    @ApiPropertyOptional({ example: 'xyz789' })
     @IsOptional()
-    bio?: string;
+    @IsString()
+    emailVerificationToken?: string;
 
-    @ApiProperty({ example: 'https://example.com/avatar.jpg', required: false })
-    @IsString()
+    @ApiPropertyOptional({ example: 'salt123' })
     @IsOptional()
-    avatar?: string;
+    @IsString()
+    salt?: string;
 }
 
 export class ChangePasswordDto {
-    @ApiProperty({ example: 'oldpassword123' })
+    @ApiProperty({ example: 'Test@123' })
     @IsString()
     @IsNotEmpty()
     currentPassword: string;
 
-    @ApiProperty({ example: 'newpassword123', minLength: 6 })
+    @ApiProperty({ example: 'Test@123', minLength: 6 })
     @IsString()
     @IsNotEmpty()
     @MinLength(6)
     newPassword: string;
 }
 
+export class UpdatePasswordDto {
+    @ApiProperty({ example: 'hashed-password-value', minLength: 6 })
+    @IsString()
+    @IsNotEmpty()
+    @MinLength(6)
+    hashedPassword: string;
+
+    @ApiProperty({ example: 'salt-value' })
+    @IsString()
+    @IsNotEmpty()
+    salt: string;
+
+    @ApiPropertyOptional({ example: 'abc123def456' })
+    @IsOptional()
+    @IsString()
+    passwordResetToken?: string;
+
+    @ApiPropertyOptional({ example: '2024-01-15T10:30:00.000Z' })
+    @IsOptional()
+    passwordResetExpires?: Date;
+}
 export class UserResponseDto {
     @ApiProperty({ example: '507f1f77bcf86cd799439011' })
     _id: string;
@@ -77,16 +118,25 @@ export class UserResponseDto {
     @ApiProperty({ example: 'john@example.com' })
     email: string;
 
+    @ApiProperty({ example: '+1234567890' })
+    phoneNumber: string;
+
     @ApiProperty({ example: 'John' })
     firstName: string;
 
     @ApiProperty({ example: 'Doe' })
     lastName: string;
 
-    @ApiProperty({ example: 'Software developer and blogger' })
+    @ApiProperty({ example: '123 Main St, City, Country' })
+    address: string;
+
+    @ApiProperty({ example: 'user', enum: ENUM_USER_ROLE })
+    role: ENUM_USER_ROLE;
+
+    @ApiPropertyOptional({ example: 'Software developer and blogger' })
     bio?: string;
 
-    @ApiProperty({ example: 'https://example.com/avatar.jpg' })
+    @ApiPropertyOptional({ example: 'https://example.com/avatar.jpg' })
     avatar?: string;
 
     @ApiProperty({ example: true })
@@ -94,6 +144,9 @@ export class UserResponseDto {
 
     @ApiProperty({ example: false })
     isEmailVerified: boolean;
+
+    @ApiPropertyOptional({ example: '2024-01-01T00:00:00.000Z' })
+    lastLoginAt?: Date;
 
     @ApiProperty({ example: '2024-01-01T00:00:00.000Z' })
     createdAt: Date;

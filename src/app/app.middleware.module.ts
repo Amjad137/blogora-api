@@ -1,14 +1,12 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
+import { AppGlobalFilter } from '@app/filters/app.global.filter';
 import {
     ThrottlerGuard,
     ThrottlerModule,
     ThrottlerModuleOptions,
 } from '@nestjs/throttler';
-import { AppGeneralFilter } from '@app/filters/app.general.filter';
-import { AppHttpFilter } from '@app/filters/app.http.filter';
-import { AppValidationImportFilter } from '@app/filters/app.validation-import.filter';
 import {
     AppJsonBodyParserMiddleware,
     AppRawBodyParserMiddleware,
@@ -31,15 +29,7 @@ import { AppUrlVersionMiddleware } from '@app/middlewares/app.url-version.middle
         },
         {
             provide: APP_FILTER,
-            useClass: AppGeneralFilter,
-        },
-        {
-            provide: APP_FILTER,
-            useClass: AppValidationImportFilter,
-        },
-        {
-            provide: APP_FILTER,
-            useClass: AppHttpFilter,
+            useClass: AppGlobalFilter,
         },
     ],
     imports: [

@@ -1,5 +1,6 @@
 import { registerAs } from '@nestjs/config';
 import { AppEnvDto, ENVIRONMENT } from '@app/dtos/app.env.dto';
+import { version } from 'package.json';
 
 export default registerAs(
     'app',
@@ -16,5 +17,6 @@ export default registerAs(
             prefix: process.env.APP_URL_VERSION_PREFIX || 'v',
             version: process.env.APP_URL_VERSION || '1',
         },
+        version,
     }),
 );

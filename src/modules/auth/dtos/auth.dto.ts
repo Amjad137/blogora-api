@@ -1,5 +1,7 @@
-import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, PickType } from '@nestjs/swagger';
+import { CreateUserDto } from '@modules/user/dtos/user.dto';
+import { ENUM_USER_ROLE } from '@modules/user/repository/entities/user.entity';
+import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 
 export class LoginDto {
     @ApiProperty({ example: 'john@example.com' })
@@ -13,29 +15,14 @@ export class LoginDto {
     password: string;
 }
 
-export class RegisterDto {
-    @ApiProperty({ example: 'john@example.com' })
-    @IsEmail()
-    @IsNotEmpty()
-    email: string;
-
-    @ApiProperty({ example: 'password123', minLength: 6 })
-    @IsString()
-    @IsNotEmpty()
-    @MinLength(6)
-    password: string;
-
-    @ApiProperty({ example: 'John' })
-    @IsString()
-    @IsNotEmpty()
-    firstName: string;
-
-    @ApiProperty({ example: 'Doe' })
-    @IsString()
-    @IsNotEmpty()
-    lastName: string;
-}
-
+export class RegisterDto extends PickType(CreateUserDto, [
+    'firstName',
+    'lastName',
+    'email',
+    'phoneNumber',
+    'address',
+    'password',
+]) {}
 export class AuthResponseDto {
     @ApiProperty({ example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' })
     accessToken: string;
@@ -52,9 +39,15 @@ export class AuthResponseDto {
     @ApiProperty({ example: 'john@example.com' })
     email: string;
 
+    @ApiProperty({ example: '+1234567890' })
+    phoneNumber: string;
+
     @ApiProperty({ example: 'John' })
     firstName: string;
 
     @ApiProperty({ example: 'Doe' })
     lastName: string;
+
+    @ApiProperty({ example: 'user', enum: ENUM_USER_ROLE })
+    role: ENUM_USER_ROLE;
 }

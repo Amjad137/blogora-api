@@ -1,5 +1,4 @@
 import {
-    BadRequestException,
     DynamicModule,
     HttpStatus,
     Module,
@@ -27,12 +26,7 @@ export class RequestModule {
                                 HttpStatus.UNPROCESSABLE_ENTITY,
                             exceptionFactory: async (
                                 errors: ValidationError[],
-                            ) => {
-                                console.log(
-                                    'ValidationPipe throwing RequestValidationException',
-                                );
-                                return new RequestValidationException(errors);
-                            },
+                            ) => new RequestValidationException(errors),
                         }),
                 },
             ],

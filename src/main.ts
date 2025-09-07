@@ -12,10 +12,11 @@ import { MessageService } from '@common/message/services/message.service';
 import compression from 'compression';
 import { Logger as PinoLogger } from 'nestjs-pino';
 import { NextFunction, Request } from 'express';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
     const app: NestApplication = await NestFactory.create(AppModule, {
-        abortOnError: true,
+        abortOnError: false,
         bufferLogs: false,
     });
 
@@ -45,6 +46,9 @@ async function bootstrap() {
 
     // Compression
     app.use(compression());
+
+    // Cookie parser
+    app.use(cookieParser());
 
     // Global
     app.setGlobalPrefix(globalPrefix);

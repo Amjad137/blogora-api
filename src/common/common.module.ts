@@ -7,7 +7,6 @@ import { TerminusModule } from '@nestjs/terminus';
 import configs from '@config';
 import { DatabaseModule } from '@common/database/database.module';
 import { MessageModule } from '@common/message/message.module';
-import { PaginationModule } from '@common/pagination/pagination.module';
 import { RequestModule } from '@common/request/request.module';
 import { ResponseModule } from '@common/response/response.module';
 
@@ -57,16 +56,9 @@ import { ResponseModule } from '@common/response/response.module';
         // Common modules
         DatabaseModule,
         MessageModule,
-        PaginationModule,
         RequestModule.forRoot(),
         ResponseModule,
     ],
-    exports: [
-        DatabaseModule,
-        MessageModule,
-        PaginationModule,
-        RequestModule,
-        ResponseModule,
-    ],
+    exports: [DatabaseModule, MessageModule, RequestModule, ResponseModule],
 })
 export class CommonModule {}

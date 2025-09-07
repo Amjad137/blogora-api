@@ -59,4 +59,8 @@ export class AppEnvDto {
     @Type(() => AppUrlVersionDto)
     @IsOptional()
     urlVersion?: AppUrlVersionDto;
+
+    @IsString()
+    @IsOptional()
+    version?: string;
 }

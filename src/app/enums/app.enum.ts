@@ -1,9 +1,7 @@
 export enum ENUM_APP_ENVIRONMENT {
     PRODUCTION = 'production',
-    STAGING = 'staging',
+    QA = 'qa',
     DEVELOPMENT = 'development',
-    MIGRATION = 'migration',
-    LOCAL = 'local',
 }
 
 export enum ENUM_APP_TIMEZONE {
