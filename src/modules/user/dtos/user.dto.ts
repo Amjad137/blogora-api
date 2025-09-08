@@ -10,6 +10,7 @@ import {
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { PartialType, OmitType } from '@nestjs/mapped-types';
 import { ENUM_USER_ROLE } from '../repository/entities/user.entity';
+import { BaseEntityDto } from '@common/database/dtos/base.dto';
 
 export class CreateUserDto {
     @ApiProperty({ example: 'John' })
@@ -36,6 +37,11 @@ export class CreateUserDto {
     @IsString()
     @IsNotEmpty()
     address: string;
+
+    @ApiPropertyOptional({ example: 'https://example.com/avatar.jpg' })
+    @IsOptional()
+    @IsString()
+    avatar?: string;
 
     @ApiProperty({ example: 'Test@123', minLength: 6 })
     @IsString()
@@ -111,10 +117,7 @@ export class UpdatePasswordDto {
     @IsOptional()
     passwordResetExpires?: Date;
 }
-export class UserResponseDto {
-    @ApiProperty({ example: '507f1f77bcf86cd799439011' })
-    _id: string;
-
+export class UserResponseDto extends PartialType(BaseEntityDto) {
     @ApiProperty({ example: 'john@example.com' })
     email: string;
 
@@ -133,9 +136,6 @@ export class UserResponseDto {
     @ApiProperty({ example: 'user', enum: ENUM_USER_ROLE })
     role: ENUM_USER_ROLE;
 
-    @ApiPropertyOptional({ example: 'Software developer and blogger' })
-    bio?: string;
-
     @ApiPropertyOptional({ example: 'https://example.com/avatar.jpg' })
     avatar?: string;
 
@@ -147,10 +147,4 @@ export class UserResponseDto {
 
     @ApiPropertyOptional({ example: '2024-01-01T00:00:00.000Z' })
     lastLoginAt?: Date;
-
-    @ApiProperty({ example: '2024-01-01T00:00:00.000Z' })
-    createdAt: Date;
-
-    @ApiProperty({ example: '2024-01-01T00:00:00.000Z' })
-    updatedAt: Date;
 }

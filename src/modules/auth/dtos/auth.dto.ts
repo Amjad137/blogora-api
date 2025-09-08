@@ -1,5 +1,5 @@
 import { ApiProperty, PickType } from '@nestjs/swagger';
-import { CreateUserDto } from '@modules/user/dtos/user.dto';
+import { CreateUserDto, UserResponseDto } from '@modules/user/dtos/user.dto';
 import { ENUM_USER_ROLE } from '@modules/user/repository/entities/user.entity';
 import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 
@@ -9,7 +9,7 @@ export class LoginDto {
     @IsNotEmpty()
     email: string;
 
-    @ApiProperty({ example: 'password123' })
+    @ApiProperty({ example: 'Test@123' })
     @IsString()
     @IsNotEmpty()
     password: string;
@@ -22,32 +22,26 @@ export class RegisterDto extends PickType(CreateUserDto, [
     'phoneNumber',
     'address',
     'password',
+    'avatar',
 ]) {}
 export class AuthResponseDto {
     @ApiProperty({ example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' })
     accessToken: string;
 
-    @ApiProperty({ example: '7d' })
-    expiresIn: string;
-
-    @ApiProperty({ example: 'Bearer' })
-    tokenType: string;
-
-    @ApiProperty({ example: '507f1f77bcf86cd799439011' })
-    userId: string;
-
-    @ApiProperty({ example: 'john@example.com' })
-    email: string;
-
-    @ApiProperty({ example: '+1234567890' })
-    phoneNumber: string;
-
-    @ApiProperty({ example: 'John' })
-    firstName: string;
-
-    @ApiProperty({ example: 'Doe' })
-    lastName: string;
-
-    @ApiProperty({ example: 'user', enum: ENUM_USER_ROLE })
-    role: ENUM_USER_ROLE;
+    @ApiProperty({
+        example: {
+            _id: '507f1f77bcf86cd799439011',
+            firstName: 'John',
+            lastName: 'Doe',
+            email: 'john@example.com',
+            phoneNumber: '+1234567890',
+            address: '123 Main St, City, Country',
+            role: 'user',
+            isActive: true,
+            isEmailVerified: false,
+            createdAt: '2024-01-01T00:00:00.000Z',
+            updatedAt: '2024-01-01T00:00:00.000Z',
+        },
+    })
+    user: UserResponseDto;
 }

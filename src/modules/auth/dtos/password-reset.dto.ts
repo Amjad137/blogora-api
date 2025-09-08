@@ -3,7 +3,7 @@ import { IsString, IsNotEmpty, MinLength } from 'class-validator';
 
 export class ChangePasswordDto {
     @ApiProperty({
-        example: 'oldPassword123',
+        example: 'oldTest@123',
         description: 'Current password',
     })
     @IsString()

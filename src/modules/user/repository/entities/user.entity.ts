@@ -71,14 +71,6 @@ export class UserEntity extends BaseEntity {
         required: false,
         trim: true,
         type: String,
-        maxlength: 500,
-    })
-    bio?: string;
-
-    @DatabaseProp({
-        required: false,
-        trim: true,
-        type: String,
     })
     avatar?: string;
 

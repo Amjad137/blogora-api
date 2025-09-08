@@ -1,6 +1,7 @@
 export interface JwtPayload {
     email: string;
     sub: string;
+    sid: string;
 }
 
 export interface AuthenticatedUser {

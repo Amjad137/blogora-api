@@ -35,7 +35,6 @@ import { Public } from '@common/decorators/public.decorator';
 import { CurrentUser } from '@common/decorators/current-user.decorator';
 import { Request, Response } from 'express';
 import { ConfigService } from '@nestjs/config';
-import { CreateUserDto } from '@modules/user/dtos/user.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -46,7 +45,7 @@ export class AuthController {
         private readonly configService: ConfigService,
     ) {}
 
-    // PUBLIC ROUTES (no authentication required)
+    /*-----------------------------Login---------------------------------*/
     @Public()
     @Post('login')
     @HttpCode(HttpStatus.OK)
@@ -59,13 +58,13 @@ export class AuthController {
     async login(
         @Body() loginDto: LoginDto,
         @Req() req: Request,
-        @Res() res: Response,
-    ): Promise<void> {
+        @Res({ passthrough: true }) res: Response,
+    ): Promise<AuthResponseDto> {
         const userAgent = req.headers['user-agent'] || 'Unknown';
-        const result = await this.authService.login(loginDto, userAgent, res);
-        res.json(result);
+        return this.authService.login(loginDto, userAgent, res);
     }
 
+    /*-----------------------------Signup / Register---------------------------------*/
     @Public()
     @Post('register')
     @HttpCode(HttpStatus.CREATED)
@@ -78,17 +77,13 @@ export class AuthController {
     async register(
         @Body() registerDto: RegisterDto,
         @Req() req: Request,
-        @Res() res: Response,
-    ): Promise<void> {
+        @Res({ passthrough: true }) res: Response,
+    ): Promise<AuthResponseDto> {
         const userAgent = req.headers['user-agent'] || 'Unknown';
-        const result = await this.authService.register(
-            registerDto,
-            userAgent,
-            res,
-        );
-        res.json(result);
+        return this.authService.register(registerDto, userAgent, res);
     }
 
+    /*-----------------------------Refresh Token---------------------------------*/
     @Public()
     @Post('refresh')
     @HttpCode(HttpStatus.OK)
@@ -98,7 +93,10 @@ export class AuthController {
         description: 'User refresh token successfully',
         type: AuthResponseDto,
     })
-    async refresh(@Req() req: Request, @Res() res: Response): Promise<void> {
+    async refresh(
+        @Req() req: Request,
+        @Res({ passthrough: true }) res: Response,
+    ): Promise<AuthResponseDto> {
         const userAgent = req.headers['user-agent'] || 'Unknown';
         const cookieKey = this.configService.get('auth.refreshTokenCookieKey');
         const refreshToken = req.cookies?.[cookieKey];
@@ -111,16 +109,11 @@ export class AuthController {
             throw new UnauthorizedException('Refresh token not found');
         }
 
-        const result = await this.authService.refreshToken(
-            refreshToken,
-            userAgent,
-            res,
-        );
-        res.json(result);
+        return this.authService.refreshToken(refreshToken, userAgent, res);
     }
 
-    // PROTECTED ROUTES (authentication required)
-    @Get('profile')
+    /*-----------------------------Get Own Profile---------------------------------*/
+    @Get('me')
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Get current user profile' })
     @ApiResponse({
@@ -131,6 +124,8 @@ export class AuthController {
         return user;
     }
 
+    /*-----------------------------Logout---------------------------------*/
+    @Public()
     @Post('logout')
     @ApiBearerAuth()
     @ApiOperation({ summary: 'User logout' })
@@ -138,7 +133,10 @@ export class AuthController {
         status: 200,
         description: 'Logout successful',
     })
-    async logout(@Req() req: Request, @Res() res: Response): Promise<void> {
+    async logout(
+        @Req() req: Request,
+        @Res({ passthrough: true }) res: Response,
+    ): Promise<{ message: string }> {
         const cookieKey = this.configService.get('auth.refreshTokenCookieKey');
         const refreshToken = req.cookies?.[cookieKey];
         if (refreshToken) {
@@ -152,11 +150,12 @@ export class AuthController {
             });
         }
 
-        res.json({
+        return {
             message: 'Logout successful',
-        });
+        };
     }
 
+    /*-----------------------------Change Password---------------------------------*/
     @Post('change-password')
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Change user password' })
@@ -176,6 +175,7 @@ export class AuthController {
         return this.authService.changePassword(user._id, changePasswordDto);
     }
 
+    /*-----------------------------Forgot Password---------------------------------*/
     @Public()
     @Post('forgot-password')
     @ApiOperation({ summary: 'Request password reset' })
@@ -199,6 +199,7 @@ export class AuthController {
         return this.authService.forgotPassword(forgotPasswordDto);
     }
 
+    /*-----------------------------Reset Password---------------------------------*/
     @Public()
     @Post('reset-password')
     @ApiOperation({ summary: 'Reset password with token' })

@@ -68,6 +68,27 @@ export class SessionService {
         await this.sessionRepository.deleteByUserId(userId);
     }
 
+    async assertActiveSessionById(
+        sessionId: string | Types.ObjectId,
+    ): Promise<void> {
+        const normalizedId =
+            typeof sessionId === 'string'
+                ? new Types.ObjectId(sessionId)
+                : sessionId;
+        const session = await this.sessionRepository.findOne({
+            _id: normalizedId,
+        });
+        if (!session) {
+            throw new UnauthorizedException('Session revoked or not found');
+        }
+        if (session.expiresAt < new Date()) {
+            await this.sessionRepository.deleteByRefreshToken(
+                session.refreshToken,
+            );
+            throw new UnauthorizedException('Session expired');
+        }
+    }
+
     async cleanupExpiredSessions(): Promise<void> {
         await this.sessionRepository.deleteExpiredSessions();
     }

@@ -81,18 +81,18 @@ export class AuthService {
         // Update last login
         await this.userService.updateLastLogin(user._id.toString());
 
-        // Generate JWT token
-        const payload: JwtPayload = {
-            email: user.email,
-            sub: user._id.toString(),
-        };
-        const accessToken = this.jwtService.sign(payload);
-
         // Create session with refresh token
         const session = await this.sessionService.createSession(
             user._id,
             userAgent,
         );
+        // Generate JWT token bound to session
+        const payload: JwtPayload = {
+            email: user.email,
+            sub: user._id.toString(),
+            sid: session._id.toString(),
+        };
+        const accessToken = this.jwtService.sign(payload);
         this.setRefreshTokenCookie(res, session.refreshToken);
         console.log(
             '🚀 ~ AuthService ~ login ~ session.refreshToken:',
@@ -100,14 +100,7 @@ export class AuthService {
         );
         return {
             accessToken,
-            expiresIn: this.configService.get<string>('auth.jwt.expiresIn'),
-            tokenType: 'Bearer',
-            userId: user._id.toString(),
-            email: user.email,
-            phoneNumber: user.phoneNumber,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            role: user.role,
+            user: this.userService.toResponseDto(user),
         };
     }
 
@@ -144,32 +137,25 @@ export class AuthService {
             address,
         });
 
-        // Generate JWT token
-        const payload: JwtPayload = {
-            email: user.email,
-            sub: user._id.toString(),
-        };
-        const accessToken = this.jwtService.sign(payload);
-
         // Create session with refresh token
         const session = await this.sessionService.createSession(
             user._id,
             userAgent,
         );
+        // Generate JWT token bound to session
+        const payload: JwtPayload = {
+            email: user.email,
+            sub: user._id.toString(),
+            sid: session._id.toString(),
+        };
+        const accessToken = this.jwtService.sign(payload);
 
         // Set refresh token in cookie
         this.setRefreshTokenCookie(res, session.refreshToken);
 
         return {
             accessToken,
-            expiresIn: this.configService.get<string>('auth.jwt.expiresIn'),
-            tokenType: 'Bearer',
-            userId: user._id.toString(),
-            email: user.email,
-            phoneNumber: user.phoneNumber,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            role: user.role,
+            user,
         };
     }
 
@@ -191,13 +177,6 @@ export class AuthService {
         // Revoke old session
         await this.sessionService.revokeSession(refreshToken);
 
-        // Generate new JWT token
-        const payload: JwtPayload = {
-            email: user.email,
-            sub: user._id.toString(),
-        };
-        const accessToken = this.jwtService.sign(payload);
-
         // Create new session
         const newSession = await this.sessionService.createSession(
             user._id,
@@ -207,16 +186,17 @@ export class AuthService {
         // Set new refresh token in cookie
         this.setRefreshTokenCookie(res, newSession.refreshToken);
 
+        // Generate new JWT token bound to the new session
+        const payload: JwtPayload = {
+            email: user.email,
+            sub: user._id.toString(),
+            sid: newSession._id.toString(),
+        };
+        const accessToken = this.jwtService.sign(payload);
+
         return {
             accessToken,
-            expiresIn: this.configService.get<string>('auth.jwt.expiresIn'),
-            tokenType: 'Bearer',
-            userId: user._id.toString(),
-            email: user.email,
-            phoneNumber: user.phoneNumber,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            role: user.role,
+            user,
         };
     }
 

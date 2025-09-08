@@ -219,9 +219,10 @@ export class UserService {
         await this.userRepository.updateLastLogin(normalizedId);
     }
 
-    private toResponseDto(user: UserDocument): UserResponseDto {
+    toResponseDto(user: UserDocument): UserResponseDto {
         const {
             password,
+            salt,
             emailVerificationToken,
             passwordResetToken,
             passwordResetExpires,
