@@ -4,7 +4,7 @@ import ms from 'ms';
 export default registerAs('auth', () => ({
     jwt: {
         secret: process.env.JWT_SECRET || 'secret-jwt-key',
-        expiresIn: process.env.JWT_EXPIRES_IN || '7d',
+        expiresIn: process.env.JWT_EXPIRES_IN || '15m',
     },
     bcrypt: {
         saltRounds: 12,

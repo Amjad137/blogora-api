@@ -17,7 +17,7 @@ import { ResponseModule } from '@common/response/response.module';
             load: configs,
             isGlobal: true,
             cache: true,
-            envFilePath: ['.env', '.env.local'],
+            envFilePath: ['.env'],
         }),
 
         // Database
