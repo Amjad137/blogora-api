@@ -99,6 +99,9 @@ async function bootstrap() {
         `Http Server running on ${await app.getUrl()}`,
         'NestApplication',
     );
+    logger.log(
+        `Swagger documentation available at: http://localhost:${port}/api/docs`,
+    );
     logger.log(`Database uri ${databaseUri}`);
 }
 bootstrap();

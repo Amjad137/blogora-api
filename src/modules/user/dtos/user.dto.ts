@@ -83,19 +83,6 @@ export class UpdateUserDto extends PartialType(
     salt?: string;
 }
 
-export class ChangePasswordDto {
-    @ApiProperty({ example: 'Test@123' })
-    @IsString()
-    @IsNotEmpty()
-    currentPassword: string;
-
-    @ApiProperty({ example: 'Test@123', minLength: 6 })
-    @IsString()
-    @IsNotEmpty()
-    @MinLength(6)
-    newPassword: string;
-}
-
 export class UpdatePasswordDto {
     @ApiProperty({ example: 'hashed-password-value', minLength: 6 })
     @IsString()

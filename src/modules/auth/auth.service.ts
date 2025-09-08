@@ -230,7 +230,7 @@ export class AuthService {
 
     async forgotPassword(
         forgotPasswordDto: ForgotPasswordDto,
-    ): Promise<{ message: string }> {
+    ): Promise<{ message: string; resetUrl?: string }> {
         const { email } = forgotPasswordDto;
 
         // Find user by email
@@ -258,9 +258,9 @@ export class AuthService {
         console.log(
             `Reset link: http://localhost:3000/reset-password?token=${resetToken}`,
         );
-
         return {
             message: 'If the email exists, a password reset link has been sent',
+            resetUrl: `http://localhost:3000/reset-password?token=${resetToken}`,
         };
     }
 

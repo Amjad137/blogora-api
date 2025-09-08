@@ -190,12 +190,17 @@ export class AuthController {
                     example:
                         'If the email exists, a password reset link has been sent',
                 },
+                resetUrl: {
+                    type: 'string',
+                    example:
+                        '(Dev mode only) http://localhost:3000/reset-password?token=1234567890',
+                },
             },
         },
     })
     async forgotPassword(
         @Body() forgotPasswordDto: ForgotPasswordDto,
-    ): Promise<{ message: string }> {
+    ): Promise<{ message: string; resetUrl?: string }> {
         return this.authService.forgotPassword(forgotPasswordDto);
     }
 

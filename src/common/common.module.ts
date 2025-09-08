@@ -37,17 +37,38 @@ import { ResponseModule } from '@common/response/response.module';
         }),
 
         // Logger
-        LoggerModule.forRootAsync({
-            useFactory: () => ({
-                pinoHttp: {
-                    transport: {
-                        target: 'pino-pretty',
-                        options: {
-                            singleLine: true,
-                        },
+        LoggerModule.forRoot({
+            pinoHttp: {
+                level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
+                autoLogging: true,
+                customReceivedMessage: req => `--> ${req.method} ${req.url}`,
+                customSuccessMessage: (req, res: any) =>
+                    `<-- ${req.method} ${req.url} ${res.statusCode}`,
+                customErrorMessage: (req, res, err) =>
+                    `<x- ${req.method} ${req.url} ${res.statusCode} ${err?.message}`,
+                serializers: {
+                    req: req => ({
+                        id: req.id,
+                        method: req.method,
+                        url: req.url,
+                    }),
+                    res: res => ({ statusCode: res.statusCode }),
+                },
+                redact: {
+                    paths: ['req.headers.cookie', 'req.headers.authorization'],
+                    remove: true,
+                },
+                transport: {
+                    target: 'pino-pretty',
+                    options: {
+                        colorize: true,
+                        translateTime: 'SYS:standard',
+                        ignore: 'pid,hostname',
+                        singleLine: true,
+                        messageFormat: '{msg}',
                     },
                 },
-            }),
+            },
         }),
 
         // Health Check

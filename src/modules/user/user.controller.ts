@@ -22,7 +22,6 @@ import { AuthenticatedUser } from '@modules/auth/interfaces/auth.interface';
 import {
     CreateUserDto,
     UpdateUserDto,
-    ChangePasswordDto,
     UserResponseDto,
 } from '@modules/user/dtos/user.dto';
 import { IPaginationResult } from '@common/database/interfaces/database.interface';
@@ -31,27 +30,13 @@ import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
 import { RolesGuard } from '@modules/auth/guards/roles.guard';
 import { Roles, Role } from '@common/decorators/roles.decorator';
 import { CurrentUser } from '@common/decorators/current-user.decorator';
+import { ChangePasswordDto } from '@modules/auth/dtos/password-reset.dto';
 
 @ApiTags('Users')
 @Controller('users')
 @UseGuards(JwtAuthGuard, RolesGuard) // Apply guards globally to this controller
 export class UserController {
     constructor(private readonly userService: UserService) {}
-
-    // USER ROUTES (authenticated users can access their own data)
-    @Get('me')
-    @ApiBearerAuth()
-    @ApiOperation({ summary: 'Get current user profile' })
-    @ApiResponse({
-        status: 200,
-        description: 'User profile retrieved successfully',
-        type: UserResponseDto,
-    })
-    async getProfile(
-        @CurrentUser() user: AuthenticatedUser,
-    ): Promise<UserResponseDto> {
-        return this.userService.findById(user._id.toString());
-    }
 
     @Patch('me')
     @ApiBearerAuth()

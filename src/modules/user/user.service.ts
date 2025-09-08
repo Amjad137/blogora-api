@@ -14,7 +14,6 @@ import { Query, RootFilterQuery, Types } from 'mongoose';
 import {
     CreateUserDto,
     UpdateUserDto,
-    ChangePasswordDto,
     UserResponseDto,
     UpdatePasswordDto,
 } from '@modules/user/dtos/user.dto';
@@ -23,6 +22,7 @@ import {
     IPaginationQuery,
     IPaginationResult,
 } from '@common/database/interfaces/database.interface';
+import { ChangePasswordDto } from '@modules/auth/dtos/password-reset.dto';
 
 @Injectable()
 export class UserService {
