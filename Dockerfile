@@ -17,7 +17,7 @@ ENV NODE_ENV=production
 COPY package.json yarn.lock ./
 
 # Install all dependencies (including dev dependencies for build)
-RUN yarn install --frozen-lockfile
+RUN yarn install --frozen-lockfile --production=false
 
 # Copy source code
 COPY . .
@@ -25,9 +25,7 @@ COPY . .
 # Build the application
 RUN yarn build
 
-# Create environment file after build
-ARG ENV=production
-RUN yarn env:copy:${ENV}
+# Skip environment file copying 
 
 # Production stage
 FROM base AS runner
@@ -47,7 +45,6 @@ RUN yarn install --frozen-lockfile --production && \
 
 # Copy built application
 COPY --from=builder --chown=nestjs:nodejs /app/dist /app/dist
-COPY --from=builder --chown=nestjs:nodejs /app/.env /app/.env
 
 # Set production environment
 ENV NODE_ENV=production
