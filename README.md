@@ -50,14 +50,14 @@ yarn install
 cp .env.example .env
 ```
 
-4. Update the `.env` file with your configuration:
+4. Update the `.env` file with your configuration (reflecting actual variables used by configs):
 
 ```env
 # Application
 NODE_ENV=development
 APP_TZ=UTC
 APP_HOST=localhost
-APP_PORT=3000
+APP_PORT=8000
 APP_GLOBAL_PREFIX=api
 APP_URL_VERSION_ENABLE=true
 APP_URL_VERSION_PREFIX=v
@@ -65,27 +65,35 @@ APP_URL_VERSION=1
 
 # Database
 DATABASE_URL=mongodb://localhost:27017/blogora
+# Optional: log mongoose debug output
+DATABASE_DEBUG=false
 
-# JWT
+# JWT (access token)
 JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
-JWT_EXPIRES_IN=7d
+JWT_EXPIRES_IN=15m
 
-# CORS
-CORS_ORIGIN=http://localhost:3000
-CORS_CREDENTIALS=true
+# Middleware / CORS
+# Comma-separated list of allowed origins
+MIDDLEWARE_CORS_ORIGIN=http://localhost:3000
+
+# AWS (S3 uploads & presigned URLs)
+AWS_ACCESS_KEY_ID=your-access-key
+AWS_SECRET_ACCESS_KEY=your-secret-key
+AWS_REGION=ap-south-1
+S3_BUCKET_NAME=your-bucket
 ```
 
 5. Start the development server:
 
 ```bash
-yarn start:dev
+yarn start:local
 ```
 
 ## API Documentation
 
 Once the server is running, you can access the API documentation at:
 
-- Swagger UI: `http://localhost:3000/api/docs`
+- Swagger UI: `http://localhost:8000/api/docs`
 
 ## Available Scripts
 
