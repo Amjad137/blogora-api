@@ -7,15 +7,15 @@ import {
 import * as bcrypt from 'bcryptjs';
 import {
     UserDocument,
-    ENUM_USER_ROLE,
     UserEntity,
 } from '@modules/user/repository/entities/user.entity';
-import { Query, RootFilterQuery, Types } from 'mongoose';
+import { RootFilterQuery, Types } from 'mongoose';
 import {
     CreateUserDto,
     UpdateUserDto,
     UserResponseDto,
     UpdatePasswordDto,
+    ENUM_USER_ROLE,
 } from '@modules/user/dtos/user.dto';
 import { UserRepository } from '@modules/user/repository/repositories/user.repository';
 import {

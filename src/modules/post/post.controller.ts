@@ -115,6 +115,24 @@ export class PostController {
         return this.postService.update(new Types.ObjectId(id), updatePostDto);
     }
 
+    @Delete(':id')
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Delete post (author or admin)' })
+    @ApiResponse({
+        status: 200,
+        description: 'Post deleted successfully',
+    })
+    async removeSelf(
+        @Param('id') id: string,
+        @CurrentUser() user: AuthenticatedUser,
+    ): Promise<void> {
+        return this.postService.removeIfAuthorized(
+            new Types.ObjectId(id),
+            new Types.ObjectId(user._id),
+            user.role,
+        );
+    }
+
     // ADMIN ONLY ROUTES
     @Roles(Role.ADMIN) // Only admins can access
     @Get('admin/all')

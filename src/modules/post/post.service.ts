@@ -14,6 +14,7 @@ import {
     IPaginationResult,
 } from '@common/database/interfaces/database.interface';
 import { CreatePostDto, UpdatePostDto } from './dtos/post.dto';
+import { ENUM_USER_ROLE } from '@modules/user/dtos/user.dto';
 
 @Injectable()
 export class PostService {
@@ -176,6 +177,31 @@ export class PostService {
     }
 
     async remove(id: Types.ObjectId): Promise<void> {
+        const deleted = await this.postRepository.softDeleteOneById(id);
+        if (!deleted) {
+            throw new NotFoundException('Post not found');
+        }
+    }
+
+    async removeIfAuthorized(
+        id: Types.ObjectId,
+        requesterId: Types.ObjectId,
+        requesterRole: string,
+    ): Promise<void> {
+        const post = await this.postRepository.findOneById(id);
+        if (!post) {
+            throw new NotFoundException('Post not found');
+        }
+
+        const isAdmin = requesterRole === ENUM_USER_ROLE.ADMIN;
+        const isOwner = post.author?.toString() === requesterId.toString();
+
+        if (!isAdmin && !isOwner) {
+            throw new ConflictException(
+                'You are not allowed to delete this post',
+            );
+        }
+
         const deleted = await this.postRepository.softDeleteOneById(id);
         if (!deleted) {
             throw new NotFoundException('Post not found');

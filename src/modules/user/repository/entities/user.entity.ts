@@ -5,13 +5,9 @@ import {
     DatabaseProp,
     DatabaseSchema,
 } from '@common/database/decorators/database.decorator';
+import { ENUM_USER_ROLE } from '@modules/user/dtos/user.dto';
 
 export const UserTableName = 'Users';
-
-export enum ENUM_USER_ROLE {
-    USER = 'user',
-    ADMIN = 'admin',
-}
 
 @DatabaseEntity({ collection: UserTableName })
 export class UserEntity extends BaseEntity {

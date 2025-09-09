@@ -1,6 +1,5 @@
 import { ApiProperty, PickType } from '@nestjs/swagger';
 import { CreateUserDto, UserResponseDto } from '@modules/user/dtos/user.dto';
-import { ENUM_USER_ROLE } from '@modules/user/repository/entities/user.entity';
 import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 
 export class LoginDto {

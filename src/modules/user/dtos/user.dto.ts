@@ -9,9 +9,12 @@ import {
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { PartialType, OmitType } from '@nestjs/mapped-types';
-import { ENUM_USER_ROLE } from '../repository/entities/user.entity';
 import { BaseEntityDto } from '@common/database/dtos/base.dto';
 
+export enum ENUM_USER_ROLE {
+    USER = 'user',
+    ADMIN = 'admin',
+}
 export class CreateUserDto {
     @ApiProperty({ example: 'John' })
     @IsString()

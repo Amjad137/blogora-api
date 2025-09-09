@@ -1,5 +1,5 @@
+import { ENUM_USER_ROLE } from '@modules/user/dtos/user.dto';
 import { SetMetadata } from '@nestjs/common';
-import { ENUM_USER_ROLE } from '@modules/user/repository/entities/user.entity';
 
 // Re-export the enum from user entity for consistency
 export const Role = ENUM_USER_ROLE;

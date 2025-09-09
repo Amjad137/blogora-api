@@ -4,9 +4,6 @@ FROM node:20-alpine AS base
 # Builder stage
 FROM base AS builder
 
-# Install build dependencies
-RUN apk add --no-cache libc6-compat
-
 WORKDIR /app
 
 # Set environment variables for build
@@ -25,7 +22,8 @@ COPY . .
 # Build the application
 RUN yarn build
 
-# Skip environment file copying 
+# Prune dev dependencies to keep only production deps
+RUN npm prune --production
 
 # Production stage
 FROM base AS runner
@@ -35,15 +33,10 @@ WORKDIR /app
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nestjs
 
-# Copy package files
+# Copy pruned production dependencies and built app
 COPY --from=builder --chown=nestjs:nodejs /app/package.json /app/package.json
 COPY --from=builder --chown=nestjs:nodejs /app/yarn.lock /app/yarn.lock
-
-# Install only production dependencies
-RUN yarn install --frozen-lockfile --production && \
-    yarn cache clean
-
-# Copy built application
+COPY --from=builder --chown=nestjs:nodejs /app/node_modules /app/node_modules
 COPY --from=builder --chown=nestjs:nodejs /app/dist /app/dist
 
 # Set production environment
