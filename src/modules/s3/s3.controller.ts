@@ -25,14 +25,16 @@ import {
     DeleteFilesRequestDto,
     FileUrlResponseDto,
 } from './dtos/s3.dto';
+import { Public } from '@common/decorators/public.decorator';
 
 @ApiTags('S3')
-@Controller('v1/s3')
+@Controller('s3')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class S3Controller {
     constructor(private readonly s3Service: S3Service) {}
 
+    @Public()
     @Post('public-upload')
     @ApiOperation({
         summary: 'Get presigned URLs for public image uploads',
@@ -47,10 +49,6 @@ export class S3Controller {
     @ApiResponse({
         status: 400,
         description: 'Invalid request data',
-    })
-    @ApiResponse({
-        status: 401,
-        description: 'Unauthorized',
     })
     async getPublicUploadUrls(
         @Body() request: PresignedUrlRequestDto,

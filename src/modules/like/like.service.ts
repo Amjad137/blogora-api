@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { LikeRepository } from '@modules/like/repositories/like.repository';
+import { PostRepository } from '@modules/post/repository/repositories/post.repository';
 import {
     LikeDocument,
     ENUM_LIKE_TYPE,
@@ -12,7 +13,10 @@ import {
 
 @Injectable()
 export class LikeService {
-    constructor(private readonly likeRepository: LikeRepository) {}
+    constructor(
+        private readonly likeRepository: LikeRepository,
+        private readonly postRepository: PostRepository,
+    ) {}
 
     async likePost(
         userId: string | Types.ObjectId,
@@ -29,12 +33,19 @@ export class LikeService {
         }
 
         const uniqueKey = `${userId}_${postId}_${ENUM_LIKE_TYPE.POST}`;
-        return this.likeRepository.create({
+        const like = await this.likeRepository.create({
             user: new Types.ObjectId(userId),
             likeType: ENUM_LIKE_TYPE.POST,
             targetId: new Types.ObjectId(postId),
             uniqueKey,
         });
+
+        // Update post like count
+        await this.postRepository.incrementLikeCount(
+            new Types.ObjectId(postId),
+        );
+
+        return like;
     }
 
     async likeComment(
@@ -73,6 +84,11 @@ export class LikeService {
         if (!deleted) {
             throw new NotFoundException('Like not found');
         }
+
+        // Update post like count
+        await this.postRepository.decrementLikeCount(
+            new Types.ObjectId(postId),
+        );
     }
 
     async unlikeComment(

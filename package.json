@@ -13,7 +13,7 @@
         "format": "prettier --write '{src,test}/**/*.{ts,json,yml,yaml}' && prettier --write '*.{ts,json,yml,yaml,mjs}'",
         "start": "nest start",
         "start:local": "yarn env:copy:local && clear && nest start --watch",
-        "start:prod": "yarn env:copy:production && node dist/main",
+        "start:prod": "node dist/main",
         "start:qa": "yarn env:copy:qa && nest start --watch",
         "env:copy:local": "cp .env.local .env",
         "env:copy:production": "cp .env.production .env",
@@ -28,8 +28,8 @@
         "package:upgrade": "npx npm-check-updates -u",
         "package:check": "npx npm-check-updates -i",
         "migrate:fresh": "yarn migrate:remove && yarn migrate:seed",
-        "migrate:seed": "nestjs-command seed:user && nestjs-command seed:category",
-        "migrate:remove": "nestjs-command remove:user && nestjs-command remove:category"
+        "migrate:seed": "nestjs-command seed:user",
+        "migrate:remove": "nestjs-command remove:user"
     },
     "dependencies": {
         "@aws-sdk/client-s3": "^3.883.0",

@@ -4,7 +4,6 @@ import { APP_GUARD } from '@nestjs/core';
 import { AuthModule } from '@modules/auth/auth.module';
 import { UserModule } from '@modules/user/user.module';
 import { PostModule } from '@modules/post/post.module';
-import { CategoryModule } from '@modules/category/category.module';
 import { CommentModule } from '@modules/comment/comment.module';
 import { HealthModule } from '@modules/health/health.module';
 import { SessionModule } from '@modules/session/session.module';
@@ -32,7 +31,6 @@ import { RolesGuard } from '@modules/auth/guards/roles.guard';
         AuthModule,
         UserModule,
         PostModule,
-        CategoryModule,
         CommentModule,
         HealthModule,
         SessionModule,
@@ -43,7 +41,6 @@ import { RolesGuard } from '@modules/auth/guards/roles.guard';
         AuthModule,
         UserModule,
         PostModule,
-        CategoryModule,
         CommentModule,
         HealthModule,
         SessionModule,

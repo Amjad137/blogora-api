@@ -63,20 +63,6 @@ export class PostController {
         return this.postService.findBySlug(slug);
     }
 
-    @Public()
-    @Get('by-category/:categoryId')
-    @ApiOperation({ summary: 'Get posts by category (public)' })
-    @ApiResponse({
-        status: 200,
-        description: 'Posts in category',
-        type: [PostResponseDto],
-    })
-    async findByCategory(
-        @Param('categoryId') categoryId: string,
-    ): Promise<PostDocument[] | IPaginationResult<PostDocument>> {
-        return this.postService.findByCategory(new Types.ObjectId(categoryId));
-    }
-
     // USER ROUTES (requires authentication)
     @Get('my-posts')
     @ApiBearerAuth()

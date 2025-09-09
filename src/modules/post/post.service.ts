@@ -27,16 +27,14 @@ export class PostService {
                 {},
                 {
                     paginationQuery: query,
-                    searchFields: ['title', 'excerpt', 'content'],
+                    searchFields: ['content', 'slug', 'tags'],
                     availableSortFields: [
-                        'title',
                         'publishedAt',
                         'createdAt',
                         'viewCount',
-                        'likeCount',
                     ],
                     defaultSortField: 'createdAt',
-                    join: true, // Include author and categories
+                    join: true,
                 },
             );
         }
@@ -51,7 +49,7 @@ export class PostService {
                 { status: 'PUBLISHED' },
                 {
                     paginationQuery: query,
-                    searchFields: ['title', 'excerpt', 'content'],
+                    searchFields: ['content', 'slug', 'tags'],
                     defaultSortField: 'publishedAt',
                     join: true,
                 },
@@ -85,19 +83,13 @@ export class PostService {
                 { author: authorId },
                 {
                     paginationQuery: query,
-                    searchFields: ['title', 'excerpt', 'content'],
+                    searchFields: ['content', 'slug', 'tags'],
                     defaultSortField: 'createdAt',
                     join: true,
                 },
             );
         }
         return this.postRepository.findByAuthor(authorId);
-    }
-
-    async findByCategory(
-        categoryId: Types.ObjectId,
-    ): Promise<PostDocument[] | IPaginationResult<PostDocument>> {
-        return this.postRepository.findByCategory(categoryId);
     }
 
     async findByTag(
@@ -110,33 +102,73 @@ export class PostService {
         createPostDto: CreatePostDto,
         authorId: Types.ObjectId,
     ): Promise<PostDocument> {
-        // Check if post with same slug exists
-        if (createPostDto.slug) {
-            const existingBySlug = await this.postRepository.findBySlug(
-                createPostDto.slug,
-            );
-            if (existingBySlug) {
-                throw new ConflictException(
-                    'Post with this slug already exists',
-                );
-            }
+        // Generate slug if missing and ensure uniqueness
+        let slug = createPostDto.slug;
+        if (!slug) {
+            const base =
+                createPostDto.content?.slice(0, 50) || new Date().toISOString();
+            slug = base
+                .toLowerCase()
+                .replace(/[^a-z0-9\s-]/g, '')
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-')
+                .trim();
+        }
+        const existingBySlug = await this.postRepository.findBySlug(slug);
+        if (existingBySlug) {
+            throw new ConflictException('Post with this slug already exists');
         }
 
-        return this.postRepository.create({
+        const post = await this.postRepository.create({
             ...createPostDto,
+            slug,
             author: authorId,
             status: createPostDto.status || ENUM_POST_STATUS.DRAFT,
         } as Partial<PostDocument>);
+
+        // Populate author and return clean data
+        await post.populate('author', 'firstName lastName avatar');
+
+        return {
+            _id: post._id,
+            slug: post.slug,
+            content: post.content,
+            featuredImage: post.featuredImage,
+            status: post.status,
+            viewCount: post.viewCount,
+            likeCount: post.likeCount,
+            commentCount: post.commentCount,
+            tags: post.tags,
+            allowComments: post.allowComments,
+            metaKeywords: post.metaKeywords,
+            publishedAt: post.publishedAt,
+            author: post.author,
+            createdAt: post.createdAt,
+            updatedAt: post.updatedAt,
+        } as PostDocument;
     }
 
     async update(
         id: Types.ObjectId,
         updatePostDto: UpdatePostDto,
     ): Promise<PostDocument> {
-        const post = await this.postRepository.updateOneById(
-            id,
-            updatePostDto as Partial<PostDocument>,
-        );
+        // Handle featuredImage explicitly - if it's null, we need to unset it
+        const updateData: Partial<PostDocument> = { ...updatePostDto };
+
+        // If featuredImage is explicitly null, we need to unset it
+        if (updatePostDto.featuredImage === null) {
+            updateData.featuredImage = undefined;
+            // Use $unset to remove the field from the document
+            const post = await this.postRepository.updateOneById(id, {
+                $unset: { featuredImage: 1 },
+            } as any);
+            if (!post) {
+                throw new NotFoundException('Post not found');
+            }
+            return post;
+        }
+
+        const post = await this.postRepository.updateOneById(id, updateData);
         if (!post) {
             throw new NotFoundException('Post not found');
         }
@@ -164,13 +196,5 @@ export class PostService {
 
     async incrementViewCount(id: Types.ObjectId): Promise<PostDocument> {
         return this.postRepository.incrementViewCount(id);
-    }
-
-    async incrementLikeCount(id: Types.ObjectId): Promise<PostDocument> {
-        return this.postRepository.incrementLikeCount(id);
-    }
-
-    async decrementLikeCount(id: Types.ObjectId): Promise<PostDocument> {
-        return this.postRepository.decrementLikeCount(id);
     }
 }

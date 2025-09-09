@@ -133,44 +133,28 @@ export class BaseRepository<
             options?.paginationQuery?.sort_order === 'asc' ? 1 : -1;
         const sort = { [sortField]: sortOrder };
 
-        // If no population, use simple pagination
-        if (!options?.join) {
-            const total = await this._repository.countDocuments(baseFilter);
-            const data = await this._repository
-                .find(baseFilter)
-                .sort(sort)
-                .skip(skip)
-                .limit(limit)
-                .exec();
+        // Use simple Mongoose pagination with populate
+        const total = await this._repository.countDocuments(baseFilter);
 
-            return {
-                data: data as T[],
-                pagination: {
-                    page,
-                    limit,
-                    total,
-                    totalPages: Math.ceil(total / limit),
-                    hasNext: page < Math.ceil(total / limit),
-                    hasPrev: page > 1,
-                },
-            };
+        let query = this._repository
+            .find(baseFilter)
+            .sort(sort)
+            .skip(skip)
+            .limit(limit);
+
+        // Add population if join is enabled
+        if (options?.join) {
+            const populateOptions =
+                typeof options.join === 'boolean' && options.join
+                    ? this._join
+                    : options.join;
+
+            if (populateOptions && typeof populateOptions !== 'boolean') {
+                query = query.populate(populateOptions);
+            }
         }
 
-        // Use aggregation for population
-        const pipeline: PipelineStage[] = [
-            { $match: baseFilter },
-            {
-                $facet: {
-                    data: [{ $sort: sort }, { $skip: skip }, { $limit: limit }],
-                    totalCount: [{ $count: 'count' }],
-                },
-            },
-        ];
-
-        const result = await this._repository.aggregate(pipeline);
-        const facetResult = result[0];
-        const data = facetResult.data || [];
-        const total = facetResult.totalCount[0]?.count || 0;
+        const data = await query.exec();
 
         return {
             data: data as T[],

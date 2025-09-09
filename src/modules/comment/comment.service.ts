@@ -5,6 +5,7 @@ import {
     ENUM_COMMENT_STATUS,
 } from '@modules/comment/repository/entities/comment.entity';
 import { CommentRepository } from '@modules/comment/repository/repositories/comment.repository';
+import { PostRepository } from '@modules/post/repository/repositories/post.repository';
 import {
     IPaginationQuery,
     IPaginationResult,
@@ -13,7 +14,10 @@ import { CreateCommentDto } from '@modules/comment/dtos/comment.dto';
 
 @Injectable()
 export class CommentService {
-    constructor(private readonly commentRepository: CommentRepository) {}
+    constructor(
+        private readonly commentRepository: CommentRepository,
+        private readonly postRepository: PostRepository,
+    ) {}
 
     async findByPost(
         postId: Types.ObjectId,
@@ -104,11 +108,31 @@ export class CommentService {
         };
 
         const comment = await this.commentRepository.create(commentData);
+
+        // Increment post comment count
+        await this.postRepository.incrementCommentCount(comment.post);
+
         // If this is a reply, increment parent's reply count
         if (comment.parent) {
             await this.commentRepository.incrementReplyCount(comment.parent);
         }
-        return comment;
+
+        // Populate the author field and return clean data
+        await comment.populate('author', 'firstName lastName avatar');
+
+        // Return only the necessary fields
+        return {
+            _id: comment._id,
+            content: comment.content,
+            author: comment.author,
+            post: comment.post,
+            parent: comment.parent,
+            status: comment.status,
+            likeCount: comment.likeCount,
+            replyCount: comment.replyCount,
+            createdAt: comment.createdAt,
+            updatedAt: comment.updatedAt,
+        } as CommentDocument;
     }
 
     async update(
@@ -130,6 +154,9 @@ export class CommentService {
         if (!comment) {
             throw new NotFoundException('Comment not found');
         }
+
+        // Decrement post comment count
+        await this.postRepository.decrementCommentCount(comment.post);
 
         // If this is a reply, decrement parent's reply count
         if (comment.parent) {

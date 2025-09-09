@@ -172,7 +172,6 @@ export class S3Service {
             Bucket: this.bucketName,
             Key: key,
             ContentType: fileType,
-            ACL: 'public-read', // Make the file publicly readable
         });
 
         return await getSignedUrl(this.s3Client, command, {

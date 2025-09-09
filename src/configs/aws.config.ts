@@ -6,12 +6,12 @@ export default registerAs(
         s3: {
             presignExpired: 30 * 60, // 30 mins
             credential: {
-                key: process.env.AWS_S3_CREDENTIAL_KEY,
-                secret: process.env.AWS_S3_CREDENTIAL_SECRET,
+                key: process.env.AWS_ACCESS_KEY_ID,
+                secret: process.env.AWS_SECRET_ACCESS_KEY,
             },
-            region: process.env.AWS_S3_REGION,
-            bucket: process.env.AWS_S3_BUCKET,
-            baseUrl: `https://${process.env.AWS_S3_BUCKET}.s3.${process.env.AWS_S3_REGION}.amazonaws.com`,
+            region: process.env.AWS_REGION,
+            bucket: process.env.S3_BUCKET_NAME,
+            baseUrl: `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com`,
         },
     }),
 );

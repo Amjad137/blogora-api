@@ -9,10 +9,6 @@ import {
     PostSchema,
 } from '@modules/post/repository/entities/post.entity';
 import {
-    CategoryEntity,
-    CategorySchema,
-} from '@modules/category/repository/entities/category.entity';
-import {
     CommentEntity,
     CommentSchema,
 } from '@modules/comment/repository/entities/comment.entity';
@@ -28,10 +24,6 @@ import { DatabaseService } from '@common/database/services/database.service';
             {
                 name: PostEntity.name,
                 schema: PostSchema,
-            },
-            {
-                name: CategoryEntity.name,
-                schema: CategorySchema,
             },
             {
                 name: CommentEntity.name,

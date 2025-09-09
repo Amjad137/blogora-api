@@ -34,7 +34,6 @@ export default async function swaggerInit(
             .addTag('Users', 'User management endpoints')
             .addTag('Posts', 'Blog post management endpoints')
             .addTag('Comments', 'Comment system endpoints')
-            .addTag('Categories', 'Category management endpoints')
             .addTag('Health', 'Health check endpoints')
             .build();
 

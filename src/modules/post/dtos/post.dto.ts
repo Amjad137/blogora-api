@@ -1,28 +1,13 @@
-import {
-    IsString,
-    IsOptional,
-    IsArray,
-    IsEnum,
-    IsMongoId,
-} from 'class-validator';
+import { IsString, IsOptional, IsArray, IsEnum } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
-import { Types } from 'mongoose';
 import { ENUM_POST_STATUS } from '../repository/entities/post.entity';
+import { BaseEntityDto } from '@common/database/dtos/base.dto';
 
 export class CreatePostDto {
-    @ApiProperty({ description: 'Post title' })
-    @IsString()
-    title: string;
-
-    @ApiProperty({ description: 'Post slug' })
-    @IsString()
-    slug: string;
-
-    @ApiPropertyOptional({ description: 'Post excerpt' })
+    @ApiProperty({ description: 'Post slug (optional, generated if absent)' })
     @IsOptional()
     @IsString()
-    excerpt?: string;
+    slug?: string;
 
     @ApiProperty({ description: 'Post content' })
     @IsString()
@@ -42,15 +27,6 @@ export class CreatePostDto {
     @IsEnum(ENUM_POST_STATUS)
     status?: ENUM_POST_STATUS;
 
-    @ApiPropertyOptional({ description: 'Category IDs' })
-    @IsOptional()
-    @IsArray()
-    @IsMongoId({
-        each: true,
-        message: 'Each category ID must be a valid MongoDB ObjectId',
-    })
-    categories?: Types.ObjectId[];
-
     @ApiPropertyOptional({ description: 'Tags' })
     @IsOptional()
     @IsArray()
@@ -60,18 +36,9 @@ export class CreatePostDto {
 
 export class UpdatePostDto extends PartialType(CreatePostDto) {}
 
-export class PostResponseDto {
-    @ApiProperty({ description: 'Post ID' })
-    _id: string;
-
-    @ApiProperty({ description: 'Post title' })
-    title: string;
-
+export class PostResponseDto extends BaseEntityDto {
     @ApiProperty({ description: 'Post slug' })
     slug: string;
-
-    @ApiPropertyOptional({ description: 'Post excerpt' })
-    excerpt?: string;
 
     @ApiProperty({ description: 'Post content' })
     content: string;
@@ -84,12 +51,6 @@ export class PostResponseDto {
 
     @ApiPropertyOptional({ description: 'View count' })
     viewCount?: number;
-
-    @ApiPropertyOptional({ description: 'Like count' })
-    likeCount?: number;
-
-    @ApiPropertyOptional({ description: 'Categories' })
-    categories?: any[];
 
     @ApiPropertyOptional({ description: 'Tags' })
     tags?: string[];

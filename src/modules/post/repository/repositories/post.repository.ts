@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { Model, PopulateOptions } from 'mongoose';
+import { Model, PopulateOptions, Types } from 'mongoose';
 import { BaseRepository } from '@common/database/bases/base.repository';
-import { Types } from 'mongoose';
 import { InjectDatabaseModel } from '@common/database/decorators/database.decorator';
 import {
     PostDocument,
@@ -9,7 +8,6 @@ import {
     ENUM_POST_STATUS,
 } from '@modules/post/repository/entities/post.entity';
 import { UserEntity } from '@modules/user/repository/entities/user.entity';
-import { CategoryEntity } from '@modules/category/repository/entities/category.entity';
 import { IPaginationResult } from '@common/database/interfaces/database.interface';
 
 @Injectable()
@@ -22,17 +20,8 @@ export class PostRepository extends BaseRepository<PostEntity, PostDocument> {
         },
     ];
 
-    static readonly _joinWithCategories: PopulateOptions[] = [
-        {
-            path: 'categories',
-            model: CategoryEntity.name,
-            select: 'name slug color',
-        },
-    ];
-
     static readonly _joinAll: PopulateOptions[] = [
         ...PostRepository._joinWithAuthor,
-        ...PostRepository._joinWithCategories,
     ];
 
     constructor(
@@ -70,18 +59,6 @@ export class PostRepository extends BaseRepository<PostEntity, PostDocument> {
         );
     }
 
-    async findByCategory(
-        categoryId: string | Types.ObjectId,
-    ): Promise<PostDocument[] | IPaginationResult<PostDocument>> {
-        return this.findAll(
-            { categories: { $in: [categoryId] } },
-            {
-                join: true,
-                order: { publishedAt: -1 },
-            },
-        );
-    }
-
     async findByTag(
         tag: string,
     ): Promise<PostDocument[] | IPaginationResult<PostDocument>> {
@@ -97,6 +74,26 @@ export class PostRepository extends BaseRepository<PostEntity, PostDocument> {
     async incrementViewCount(_id: Types.ObjectId): Promise<PostDocument> {
         return this.updateOneById(_id, {
             $inc: { viewCount: 1 },
+        });
+    }
+
+    async publish(_id: Types.ObjectId): Promise<PostDocument> {
+        return this.updateOneById(_id, {
+            status: ENUM_POST_STATUS.PUBLISHED,
+            publishedAt: new Date(),
+        });
+    }
+
+    async unpublish(_id: Types.ObjectId): Promise<PostDocument> {
+        return this.updateOneById(_id, {
+            status: ENUM_POST_STATUS.DRAFT,
+            publishedAt: null,
+        });
+    }
+
+    async archive(_id: Types.ObjectId): Promise<PostDocument> {
+        return this.updateOneById(_id, {
+            status: ENUM_POST_STATUS.ARCHIVED,
         });
     }
 
@@ -121,26 +118,6 @@ export class PostRepository extends BaseRepository<PostEntity, PostDocument> {
     async decrementCommentCount(_id: Types.ObjectId): Promise<PostDocument> {
         return this.updateOneById(_id, {
             $inc: { commentCount: -1 },
-        });
-    }
-
-    async publish(_id: Types.ObjectId): Promise<PostDocument> {
-        return this.updateOneById(_id, {
-            status: ENUM_POST_STATUS.PUBLISHED,
-            publishedAt: new Date(),
-        });
-    }
-
-    async unpublish(_id: Types.ObjectId): Promise<PostDocument> {
-        return this.updateOneById(_id, {
-            status: ENUM_POST_STATUS.DRAFT,
-            publishedAt: null,
-        });
-    }
-
-    async archive(_id: Types.ObjectId): Promise<PostDocument> {
-        return this.updateOneById(_id, {
-            status: ENUM_POST_STATUS.ARCHIVED,
         });
     }
 }

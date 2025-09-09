@@ -6,7 +6,6 @@ import {
 import { IBaseEntity } from '@common/database/interfaces/database.interface';
 import { BaseEntity } from '@common/database/bases/base.entity';
 import { UserEntity } from '@modules/user/repository/entities/user.entity';
-import { CategoryEntity } from '@modules/category/repository/entities/category.entity';
 import { Types } from 'mongoose';
 
 export const PostTableName = 'Posts';
@@ -21,14 +20,6 @@ export enum ENUM_POST_STATUS {
 export class PostEntity extends BaseEntity {
     @DatabaseProp({
         required: true,
-        trim: true,
-        type: String,
-        maxlength: 200,
-    })
-    title: string;
-
-    @DatabaseProp({
-        required: true,
         unique: true,
         index: true,
         trim: true,
@@ -36,14 +27,6 @@ export class PostEntity extends BaseEntity {
         maxlength: 250,
     })
     slug: string;
-
-    @DatabaseProp({
-        required: false,
-        trim: true,
-        type: String,
-        maxlength: 300,
-    })
-    excerpt?: string;
 
     @DatabaseProp({
         required: true,
@@ -83,39 +66,10 @@ export class PostEntity extends BaseEntity {
 
     @DatabaseProp({
         required: false,
-        ref: CategoryEntity.name,
-        type: [Types.ObjectId],
-        default: [],
-    })
-    categories?: Types.ObjectId[];
-
-    @DatabaseProp({
-        required: false,
         type: [String],
         default: [],
     })
     tags?: string[];
-
-    @DatabaseProp({
-        required: true,
-        default: 0,
-        type: Number,
-    })
-    viewCount: number;
-
-    @DatabaseProp({
-        required: true,
-        default: 0,
-        type: Number,
-    })
-    likeCount: number;
-
-    @DatabaseProp({
-        required: true,
-        default: 0,
-        type: Number,
-    })
-    commentCount: number;
 
     @DatabaseProp({
         required: true,
@@ -138,6 +92,27 @@ export class PostEntity extends BaseEntity {
         default: [],
     })
     metaKeywords?: string[];
+
+    @DatabaseProp({
+        required: true,
+        default: 0,
+        type: Number,
+    })
+    viewCount: number;
+
+    @DatabaseProp({
+        required: true,
+        default: 0,
+        type: Number,
+    })
+    likeCount: number;
+
+    @DatabaseProp({
+        required: true,
+        default: 0,
+        type: Number,
+    })
+    commentCount: number;
 }
 
 export const PostSchema = DatabaseSchema(PostEntity);
