@@ -19,7 +19,6 @@ import { CommentService } from '@modules/comment/comment.service';
 import { CommentDocument } from '@modules/comment/repository/entities/comment.entity';
 import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
 import { RolesGuard } from '@modules/auth/guards/roles.guard';
-import { Public } from '@common/decorators/public.decorator';
 import { Types } from 'mongoose';
 import { IPaginationResult } from '@common/database/interfaces/database.interface';
 import { PaginationQueryDto } from '@common/database/dtos/pagination.dto';
@@ -37,10 +36,9 @@ import { AuthenticatedUser } from '@modules/auth/interfaces/auth.interface';
 export class CommentController {
     constructor(private readonly commentService: CommentService) {}
 
-    // PUBLIC ROUTES (no authentication required)
-    @Public()
+    // PROTECTED ROUTES (authentication required)
     @Get('post/:postId')
-    @ApiOperation({ summary: 'Get comments for a post (public)' })
+    @ApiOperation({ summary: 'Get comments for a post' })
     @ApiResponse({
         status: 200,
         description: 'List of approved comments for the post',

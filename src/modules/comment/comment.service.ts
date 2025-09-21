@@ -27,10 +27,12 @@ export class CommentService {
             return this.commentRepository.findAll(
                 { post: postId, status: ENUM_COMMENT_STATUS.ACTIVE },
                 {
-                    paginationQuery: query,
-                    searchFields: ['content'],
-                    availableSortFields: ['createdAt'],
-                    defaultSortField: 'createdAt',
+                    paginationQuery: {
+                        ...query,
+                        searchFields: ['content'],
+                        availableSortFields: ['createdAt'],
+                        defaultSortField: 'createdAt',
+                    },
                     join: true, // Include author and post
                 },
             );
@@ -58,10 +60,12 @@ export class CommentService {
             return this.commentRepository.findAll(
                 { author: authorId, status: ENUM_COMMENT_STATUS.ACTIVE },
                 {
-                    paginationQuery: query,
-                    searchFields: ['content'],
-                    availableSortFields: ['createdAt'],
-                    defaultSortField: 'createdAt',
+                    paginationQuery: {
+                        ...query,
+                        searchFields: ['content'],
+                        availableSortFields: ['createdAt'],
+                        defaultSortField: 'createdAt',
+                    },
                     join: true, // Include post
                 },
             );
@@ -76,10 +80,12 @@ export class CommentService {
             return this.commentRepository.findAll(
                 { status: ENUM_COMMENT_STATUS.SPAM },
                 {
-                    paginationQuery: query,
-                    searchFields: ['content'],
-                    availableSortFields: ['createdAt'],
-                    defaultSortField: 'createdAt',
+                    paginationQuery: {
+                        ...query,
+                        searchFields: ['content'],
+                        availableSortFields: ['createdAt'],
+                        defaultSortField: 'createdAt',
+                    },
                     join: true, // Include author and post
                 },
             );
@@ -186,10 +192,12 @@ export class CommentService {
             return this.commentRepository.findAll(
                 { parent: parentId, status: ENUM_COMMENT_STATUS.ACTIVE },
                 {
-                    paginationQuery: query,
-                    searchFields: ['content'],
-                    availableSortFields: ['createdAt'],
-                    defaultSortField: 'createdAt',
+                    paginationQuery: {
+                        ...query,
+                        searchFields: ['content'],
+                        availableSortFields: ['createdAt'],
+                        defaultSortField: 'createdAt',
+                    },
                     join: true, // Include author
                 },
             );

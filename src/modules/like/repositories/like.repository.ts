@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Model, Types } from 'mongoose';
+import { Model, Types, FilterQuery } from 'mongoose';
 import { BaseRepository } from '@common/database/bases/base.repository';
 import { InjectDatabaseModel } from '@common/database/decorators/database.decorator';
 import {
@@ -21,7 +21,7 @@ export class LikeRepository extends BaseRepository<LikeEntity, LikeDocument> {
         userId: string | Types.ObjectId,
         targetId: string | Types.ObjectId,
         likeType: ENUM_LIKE_TYPE,
-    ): Promise<LikeDocument | null> {
+    ): Promise<LikeDocument | undefined> {
         const uniqueKey = `${userId}_${targetId}_${likeType}`;
         return this.findOne({ uniqueKey });
     }
@@ -30,7 +30,9 @@ export class LikeRepository extends BaseRepository<LikeEntity, LikeDocument> {
         userId: string | Types.ObjectId,
         likeType?: ENUM_LIKE_TYPE,
     ): Promise<LikeDocument[]> {
-        const filter: any = { user: new Types.ObjectId(userId) };
+        const filter: FilterQuery<LikeEntity> = {
+            user: new Types.ObjectId(userId),
+        };
         if (likeType) {
             filter.likeType = likeType;
         }

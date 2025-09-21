@@ -12,6 +12,7 @@ import {
     CommentEntity,
     CommentSchema,
 } from '@modules/comment/repository/entities/comment.entity';
+import { LikeEntity, LikeSchema } from '@modules/like/entities/like.entity';
 import { DatabaseService } from '@common/database/services/database.service';
 
 @Module({
@@ -28,6 +29,10 @@ import { DatabaseService } from '@common/database/services/database.service';
             {
                 name: CommentEntity.name,
                 schema: CommentSchema,
+            },
+            {
+                name: LikeEntity.name,
+                schema: LikeSchema,
             },
         ]),
     ],

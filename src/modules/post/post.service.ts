@@ -27,14 +27,16 @@ export class PostService {
             return this.postRepository.findAll(
                 {},
                 {
-                    paginationQuery: query,
-                    searchFields: ['content', 'slug', 'tags'],
-                    availableSortFields: [
-                        'publishedAt',
-                        'createdAt',
-                        'viewCount',
-                    ],
-                    defaultSortField: 'createdAt',
+                    paginationQuery: {
+                        ...query,
+                        searchFields: ['content', 'slug', 'tags'],
+                        availableSortFields: [
+                            'publishedAt',
+                            'createdAt',
+                            'viewCount',
+                        ],
+                        defaultSortField: 'createdAt',
+                    },
                     join: true,
                 },
             );
@@ -49,9 +51,11 @@ export class PostService {
             return this.postRepository.findAll(
                 { status: 'PUBLISHED' },
                 {
-                    paginationQuery: query,
-                    searchFields: ['content', 'slug', 'tags'],
-                    defaultSortField: 'publishedAt',
+                    paginationQuery: {
+                        ...query,
+                        searchFields: ['content', 'slug', 'tags'],
+                        defaultSortField: 'publishedAt',
+                    },
                     join: true,
                 },
             );
@@ -83,9 +87,11 @@ export class PostService {
             return this.postRepository.findAll(
                 { author: authorId },
                 {
-                    paginationQuery: query,
-                    searchFields: ['content', 'slug', 'tags'],
-                    defaultSortField: 'createdAt',
+                    paginationQuery: {
+                        ...query,
+                        searchFields: ['content', 'slug', 'tags'],
+                        defaultSortField: 'createdAt',
+                    },
                     join: true,
                 },
             );

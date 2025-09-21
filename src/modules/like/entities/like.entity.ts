@@ -50,4 +50,9 @@ export class LikeEntity extends BaseEntity {
 }
 
 export const LikeSchema = DatabaseSchema(LikeEntity);
+
+// Add compound index for efficient queries
+LikeSchema.index({ targetId: 1, likeType: 1 });
+LikeSchema.index({ user: 1, likeType: 1 });
+
 export type LikeDocument = LikeEntity & IBaseEntity;
