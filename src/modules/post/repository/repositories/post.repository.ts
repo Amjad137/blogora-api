@@ -16,7 +16,7 @@ export class PostRepository extends BaseRepository<PostEntity, PostDocument> {
         {
             path: 'author',
             model: UserEntity.name,
-            select: 'firstName lastName email avatar',
+            select: ['firstName', 'lastName', 'email', 'avatar'],
         },
     ];
 

@@ -85,7 +85,6 @@ export class BaseRepository<
         this._join = options;
     }
 
-    // Single findAll method
     async findAll<T = EntityDocument>(
         filter?: FilterQuery<Entity>,
         options?: IDatabaseFindAllOptions & {
@@ -212,24 +211,61 @@ export class BaseRepository<
                     ? this._join
                     : options.join;
 
-            if (populateOptions && typeof populateOptions !== 'boolean') {
-                if (Array.isArray(populateOptions)) {
-                    populateOptions.forEach((populate: any) => {
-                        searchPipelines.push({
+            if (populateOptions && Array.isArray(populateOptions)) {
+                for (const populate of populateOptions) {
+                    // Only handle PopulateOptions objects (not strings)
+                    if (typeof populate === 'string' || !populate.model) {
+                        continue;
+                    }
+
+                    // Get the actual collection name from the model
+                    const modelName =
+                        typeof populate.model === 'string'
+                            ? populate.model
+                            : populate.model.modelName;
+                    const model = this._repository.db.model(modelName);
+                    const collectionName = model.collection.name;
+
+                    searchPipelines.push(
+                        {
                             $lookup: {
-                                from: populate.model || populate.path,
+                                from: collectionName,
                                 localField: populate.path,
                                 foreignField: '_id',
                                 as: populate.path,
                             },
-                        });
-                        searchPipelines.push({
+                        },
+                        {
                             $unwind: {
                                 path: `$${populate.path}`,
                                 preserveNullAndEmptyArrays: true,
                             },
+                        },
+                    );
+
+                    // Apply field selection if specified (expects array of strings)
+                    if (populate.select && Array.isArray(populate.select)) {
+                        const fieldProjection: Record<string, string> = {
+                            _id: `$${populate.path}._id`,
+                        };
+
+                        for (const field of populate.select) {
+                            fieldProjection[field] =
+                                `$${populate.path}.${field}`;
+                        }
+
+                        searchPipelines.push({
+                            $addFields: {
+                                [populate.path]: {
+                                    $cond: [
+                                        { $ne: [`$${populate.path}`, null] },
+                                        fieldProjection,
+                                        null,
+                                    ],
+                                },
+                            },
                         });
-                    });
+                    }
                 }
             }
         }

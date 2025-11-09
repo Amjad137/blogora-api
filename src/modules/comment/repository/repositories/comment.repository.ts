@@ -20,7 +20,7 @@ export class CommentRepository extends BaseRepository<
         {
             path: 'author',
             model: UserEntity.name,
-            select: 'firstName lastName avatar',
+            select: ['firstName', 'lastName', 'avatar'],
         },
     ];
 
@@ -28,7 +28,7 @@ export class CommentRepository extends BaseRepository<
         {
             path: 'post',
             model: PostEntity.name,
-            select: 'title slug',
+            select: ['slug'],
         },
     ];
 
@@ -36,11 +36,11 @@ export class CommentRepository extends BaseRepository<
         {
             path: 'parent',
             model: CommentEntity.name,
-            select: 'content author createdAt',
+            select: ['content', 'author', 'createdAt'],
             populate: {
                 path: 'author',
                 model: UserEntity.name,
-                select: 'firstName lastName avatar',
+                select: ['firstName', 'lastName', 'avatar'],
             },
         },
     ];
