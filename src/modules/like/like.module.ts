@@ -4,21 +4,17 @@ import { LikeService } from '@modules/like/like.service';
 import { LikeController } from '@modules/like/like.controller';
 import { LikeRepository } from '@modules/like/repositories/like.repository';
 import { LikeEntity, LikeSchema } from '@modules/like/entities/like.entity';
-import { PostRepository } from '@modules/post/repository/repositories/post.repository';
-import {
-    PostEntity,
-    PostSchema,
-} from '@modules/post/repository/entities/post.entity';
+import { PostModule } from '@modules/post/post.module';
 
 @Module({
     imports: [
         MongooseModule.forFeature([
             { name: LikeEntity.name, schema: LikeSchema },
-            { name: PostEntity.name, schema: PostSchema },
         ]),
+        PostModule,
     ],
     controllers: [LikeController],
-    providers: [LikeService, LikeRepository, PostRepository],
+    providers: [LikeService, LikeRepository],
     exports: [LikeService],
 })
 export class LikeModule {}
