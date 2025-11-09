@@ -126,11 +126,16 @@ export class PostService {
             throw new ConflictException('Post with this slug already exists');
         }
 
+        const status = createPostDto.status || ENUM_POST_STATUS.DRAFT;
+        const publishedAt =
+            status === ENUM_POST_STATUS.PUBLISHED ? new Date() : undefined;
+
         const post = await this.postRepository.create({
             ...createPostDto,
             slug,
             author: authorId,
-            status: createPostDto.status || ENUM_POST_STATUS.DRAFT,
+            status,
+            publishedAt,
         } as Partial<PostDocument>);
 
         // Populate author and return clean data
@@ -159,8 +164,22 @@ export class PostService {
         id: Types.ObjectId,
         updatePostDto: UpdatePostDto,
     ): Promise<PostDocument> {
+        // Get the existing post to check status change
+        const existingPost = await this.postRepository.findOneById(id);
+        if (!existingPost) {
+            throw new NotFoundException('Post not found');
+        }
+
         // Handle featuredImage explicitly - if it's null, we need to unset it
         const updateData: Partial<PostDocument> = { ...updatePostDto };
+
+        // If status is changing from DRAFT to PUBLISHED, set publishedAt
+        if (
+            updatePostDto.status === ENUM_POST_STATUS.PUBLISHED &&
+            existingPost.status !== ENUM_POST_STATUS.PUBLISHED
+        ) {
+            updateData.publishedAt = new Date();
+        }
 
         // If featuredImage is explicitly null, we need to unset it
         if (updatePostDto.featuredImage === null) {
@@ -168,6 +187,7 @@ export class PostService {
             // Use $unset to remove the field from the document
             const post = await this.postRepository.updateOneById(id, {
                 $unset: { featuredImage: 1 },
+                ...updateData,
             } as any);
             if (!post) {
                 throw new NotFoundException('Post not found');
